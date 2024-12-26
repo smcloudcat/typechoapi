@@ -15,6 +15,8 @@ Typecho 接口 API，包括发布文章、获取文章、获取文章评论、�
 
 ## 接口文档
 
+### [文档地址](https://lwcat.cn/markdown/typechoapi/)
+
 ### 1. 发布文章 (release)
 
 #### 请求方法
