@@ -37,10 +37,10 @@ try {
     $method = $_REQUEST['method'] ?? '';
 
     if ($method == 'release') { // 发布文章
-        $title = isset($_POST['title']) ? trim($_POST['title']) : '';
-        $content = isset($_POST['content']) ? trim($_POST['content']) : '';
-        $slug = isset($_POST['slug']) ? trim($_POST['slug']) : '';
-        $tags = isset($_POST['tags']) ? trim($_POST['tags']) : '';
+        $title = isset($_REQUEST['title']) ? trim($_REQUEST['title']) : '';
+        $content = isset($_REQUEST['content']) ? trim($_REQUEST['content']) : '';
+        $slug = isset($_REQUEST['slug']) ? trim($_REQUEST['slug']) : '';
+        $tags = isset($_REQUEST['tags']) ? trim($_REQUEST['tags']) : '';
 
         if (empty($title) || empty($content)) {
             throw new Exception('标题和内容不能为空');
@@ -103,8 +103,8 @@ try {
             JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
 
     } elseif ($method == 'getarticle') { // 获取文章
-        $page = max(1, intval($_GET['page'] ?? 1));
-        $pageSize = max(1, min(50, intval($_GET['pageSize'] ?? 10)));
+        $page = max(1, intval($_REQUEST['page'] ?? 1));
+        $pageSize = max(1, min(50, intval($_REQUEST['pageSize'] ?? 10)));
         $offset = ($page - 1) * $pageSize;
 
         $totalQuery = $db->select('COUNT(*) AS count')->from($table)
@@ -165,7 +165,7 @@ try {
         ], JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
 
     } elseif ($method == 'getcomments') { // 获取文章评论
-        $cid = intval($_GET['cid'] ?? 0);
+        $cid = intval($_REQUEST['cid'] ?? 0);
         if (!$cid) {
             throw new Exception('文章ID不能为空');
         }
@@ -221,6 +221,24 @@ try {
             'success' => true,
             'data' => $result
         ], JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
+
+    } elseif ($method == 'delete') { // 删除文章
+        $cid = intval($_REQUEST['cid'] ?? 0);
+        if (!$cid) {
+            throw new Exception('文章ID不能为空');
+        }
+
+        $deleteArticleQuery = $db->delete($table)->where('cid = ?', $cid);
+        $db->query($deleteArticleQuery);
+
+        $db->query($db->delete($prefix . 'relationships')->where('cid = ?', $cid));
+
+        $db->query($db->delete($prefix . 'comments')->where('cid = ?', $cid));
+
+        $db->query($db->delete($prefix . 'metas')->where('mid = ?', $cid));
+
+        echo json_encode(['success' => true, 'message' => '文章删除成功'], 
+            JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
 
     } else {
         throw new Exception('不支持的请求方法');

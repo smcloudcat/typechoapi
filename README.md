@@ -1,3 +1,7 @@
+为了新增删除文章功能的接口文档，以下是修改后的接口文档，包括了删除文章的相关说明：
+
+---
+
 # typechoapi
 
 Typecho 接口 API，包括发布文章、获取文章、获取文章评论、获取网站信息等接口，持续更新中……
@@ -35,7 +39,7 @@ Typecho 接口 API，包括发布文章、获取文章、获取文章评论、�
 #### 示例请求
 
 ```bash
-POST https://lwcat.cn/api.php
+POST https://example.com/api.php
 Content-Type: application/json
 
 {
@@ -87,7 +91,7 @@ Content-Type: application/json
 #### 示例请求
 
 ```bash
-GET https://lwcat.cn/api.php?method=getarticle&token=123456&page=1&pageSize=10
+GET https://example.com/api.php?method=getarticle&token=123456&page=1&pageSize=10
 ```
 
 #### 响应示例
@@ -142,7 +146,7 @@ GET https://lwcat.cn/api.php?method=getarticle&token=123456&page=1&pageSize=10
 #### 示例请求
 
 ```bash
-GET https://lwcat.cn/api.php?method=getcomments&token=123456&cid=123
+GET https://example.com/api.php?method=getcomments&token=123456&cid=123
 ```
 
 #### 响应示例
@@ -180,7 +184,7 @@ GET https://lwcat.cn/api.php?method=getcomments&token=123456&cid=123
 #### 示例请求
 
 ```bash
-GET https://lwcat.cn/api.php?method=getbloginfo&token=123456
+GET https://example.com/api.php?method=getbloginfo&token=123456
 ```
 
 #### 响应示例
@@ -200,6 +204,53 @@ GET https://lwcat.cn/api.php?method=getbloginfo&token=123456
         "charset": "UTF-8",
         "postCount": "65"
     }
+}
+```
+
+---
+
+### 5. 删除文章 (delete)
+
+#### 请求方法
+`POST`
+
+#### 请求参数
+
+| 参数   | 类型   | 必填 | 说明                                |
+|--------|--------|------|-------------------------------------|
+| token  | string | 是   | 请求的认证 Token，必填，正确的 token |
+| cid    | int    | 是   | 要删除的文章 ID                    |
+
+#### 示例请求
+
+```bash
+POST https://example.com/api.php
+Content-Type: application/json
+
+{
+  "method": "delete",
+  "token": "123456",
+  "cid": 123
+}
+```
+
+#### 响应示例
+
+成功响应：
+
+```json
+{
+  "success": true,
+  "message": "文章删除成功"
+}
+```
+
+失败响应：
+
+```json
+{
+  "success": false,
+  "message": "无效的 token"
 }
 ```
 
