@@ -1,10 +1,14 @@
 # typechoapi
 
-Typecho 接口 API，包括发布文章、获取文章、获取文章评论、获取网站信息等接口，持续更新中……
+Typecho 接口 API，包括发布文章、搜索文章、获取文章、备份数据、获取文章评论、获取网站信息、获取分类、获取标签等接口，持续更新中……
 
 ## 使用教程
 
-上传 `api.php` 文件到 Typecho 博客根目录，使用前请务必修改自定义 `token`（为了安全考虑，不修改无法使用接口）。
+上传 `api.php` 文件到 Typecho 博客（只支持正式版1.2.1，其他版本不支持，包括开发版本）根目录，使用前请务必修改自定义 `token`（为了安全考虑，不修改无法使用接口）。
+
+## 近期新增
+
+搜索文章、获取分类、获取标签、备份数据、删除备份
 
 ## 项目地址
 
@@ -275,6 +279,200 @@ Content-Type: application/json
 
 ---
 
+### 6. 备份管理
+
+#### 6.1 数据库备份 (backup_db)
+#### 6.2 文件备份 (backup_files) 
+#### 6.3 完整备份 (backup_all)
+
+##### 请求方法
+`GET/POST`
+
+##### 请求参数
+| 参数   | 类型   | 必填 | 说明                               |
+|--------|--------|------|------------------------------------|
+| token  | string | 是   | 请求的认证 Token                  |
+| method | string | 是   | 备份类型：backup_db/backup_files/backup_all |
+
+##### 示例请求
+```bash
+GET https://example.com/api.php?method=backup_db&token=123456
+```
+
+##### 响应示例
+```json
+{
+  "success": true,
+  "message": "备份完成",
+  "download_links": [
+    {
+      "name": "backup_202308201530_abcd1234.sql",
+      "url": "https://example.com/backups/backup_202504201530_abcd1234.sql"
+    }
+  ]
+}
+```
+
+---
+
+### 7. 标签管理
+
+#### 7.1 获取全部标签 (getalltags)
+
+##### 请求方法
+`GET`
+
+##### 请求参数
+| 参数   | 类型   | 必填 | 说明          |
+|--------|--------|------|---------------|
+| token  | string | 是   | 认证 Token   |
+
+##### 响应示例
+```json
+{
+  "success": true,
+  "data": [
+    {"name": "PHP", "slug": "php"},
+    {"name": "教程", "slug": "tutorial"}
+  ]
+}
+```
+
+---
+
+### 8. 分类管理
+
+#### 8.1 获取全部分类 (getallcategories)
+
+##### 请求方法
+`GET`
+
+##### 请求参数
+| 参数   | 类型   | 必填 | 说明          |
+|--------|--------|------|---------------|
+| token  | string | 是   | 认证 Token   |
+
+##### 响应示例
+```json
+{
+  "success": true,
+  "data": [
+    {"name": "技术文章", "slug": "tech", "post_count": 15},
+    {"name": "生活随笔", "slug": "life", "post_count": 8}
+  ]
+}
+```
+
+#### 8.2 获取分类文章 (getcategoryposts)
+
+##### 请求参数
+| 参数     | 类型   | 必填 | 说明                         |
+|----------|--------|------|------------------------------|
+| token    | string | 是   | 认证 Token                  |
+| category | string | 是   | 分类名称或缩略名            |
+| page     | int    | 否   | 页码（默认1）               |
+| pageSize | int    | 否   | 每页数量（默认10，最大100） |
+
+##### 响应示例
+```json
+{
+  "success": true,
+  "category_info": {
+    "name": "技术文章",
+    "slug": "tech",
+    "total_posts": 25
+  },
+  "data": [
+    {
+      "cid": 123,
+      "title": "PHP编程技巧",
+      "slug": "php-tips",
+      "created": "2025-04-20 10:30:00",
+      "authorId": 1,
+      "tags": ["PHP", "后端"],
+      "summary": "本文分享10个实用的PHP编程技巧..."
+    }
+  ],
+  "pagination": {
+    "total": 25,
+    "page": 1,
+    "pageSize": 10,
+    "totalPages": 3
+  }
+}
+```
+
+---
+
+### 9. 文章搜索 (search)
+
+##### 请求参数
+| 参数     | 类型   | 必填 | 说明                         |
+|----------|--------|------|------------------------------|
+| token    | string | 是   | 认证 Token                  |
+| keyword  | string | 是   | 搜索关键词                  |
+| page     | int    | 否   | 页码（默认1）               |
+| pageSize | int    | 否   | 每页数量（默认10，最大100） |
+
+##### 响应示例
+```json
+{
+  "success": true,
+  "keyword": "API",
+  "data": [
+    {
+      "cid": 123,
+      "title": "TypechoAPI开发指南",
+      "highlight_title": "Typecho <span class=\"highlight\">API</span>开发指南",
+      "slug": "typecho-api",
+      "created": "2025-04-20 14:30:00",
+      "authorId": 1,
+      "tags": ["教程", "开发"],
+      "summary": "本文详细介绍如何开发Typecho API接口...",
+      "highlight_summary": "本文详细介绍如何开发Typecho <span class=\"highlight\">API</span>接口..."
+    }
+  ],
+  "pagination": {
+    "total": 5,
+    "page": 1,
+    "pageSize": 10,
+    "totalPages": 1
+  }
+}
+```
+
+---
+
+### 10. 删除备份 (delete_backups)
+
+##### 请求方法
+`POST`
+
+##### 请求参数
+| 参数   | 类型   | 必填 | 说明          |
+|--------|--------|------|---------------|
+| token  | string | 是   | 认证 Token   |
+
+##### 响应示例
+```json
+{
+  "success": true,
+  "message": "已删除所有备份文件"
+}
+```
+
+---
+
+## 错误码（新增）
+
+| 错误信息            | 描述                          |
+|---------------------|-------------------------------|
+| `分类不存在`         | 指定的分类名称/缩略名不存在   |
+| `搜索关键词不能为空` | 未提供搜索关键词              |
+| `数据库备份失败`     | 执行数据库备份时出现错误      |
+
+---
+
 ## 其他说明
 
 1. **Token 设置**  
@@ -286,6 +484,25 @@ Content-Type: application/json
 
 3. **错误处理**  
    所有接口都会返回标准的错误格式，确保你能够捕获并处理错误信息。
+
+4. **备份管理注意事项**
+   - 备份目录位于 `/backups/` 需要777写权限，可在文件中修改地址（建议修改）
+   - 建议在服务器配置禁止直接访问备份目录
+   - 大文件备份建议设置 `set_time_limit(0)`，否则容易出现超时问题，尤其是把图片文件都放在博客服务器中的
+
+5. **搜索功能优化建议**
+   - 在MySQL中为contents表创建全文索引
+   ```sql
+   CREATE FULLTEXT INDEX idx_search ON typecho_contents(title, text);
+   ```
+   - 中文搜索建议使用MySQL 5.7+的ngram分词器
+
+6. **分类文章排序逻辑**
+   - 默认按创建时间倒序排列
+   - 可通过修改`order`参数实现不同排序方式：
+   ```php
+   ->order($table.'.created', Typecho_Db::SORT_DESC) // 修改此处排序条件
+   ```
 
 ---
 
